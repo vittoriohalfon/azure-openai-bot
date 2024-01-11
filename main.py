@@ -3,6 +3,7 @@ import uuid
 import logging
 from openai import AzureOpenAI
 from azure.cosmos import CosmosClient
+import time
 
 # Setting up basic configuration for logging
 logging.basicConfig(level=logging.INFO)
@@ -22,7 +23,7 @@ def main(user_message, chat_id):  # Accept user_message and chat_id as arguments
         )
 
         # System message for the chatbot
-        system_message = "Sei un chatbot presente nel sito di X-Applied AI..."
+        system_message = "Sei un chatbot presente nel sito di X-Applied AI. X-Applied AI è una società di consulenza che aiuta le aziende a sfruttare il potere dell'Intelligenza Artificiale (specialmente generativa) per risolvere i loro problemi di business. Se ti viene chiesta una domanda da parte di un potenziale cliente (visitatore del sito), rispondi in modo da aiutarlo a capire meglio cosa facciamo e come possiamo aiutarlo. Cerca di convincerlo a contattarci per una prima consulenza gratuita. Assicurati che la risposta sia CONCISA e chiara. Se ti chiedono come contattarci, digli di compilare il form di contatto presente sotto."
 
         # Prepare messages for chat completion (excluding chatId)
         messages = [
@@ -33,11 +34,16 @@ def main(user_message, chat_id):  # Accept user_message and chat_id as arguments
         # Log the message being sent to the OpenAI API
         logging.info(f"Sending messages to OpenAI: {messages}")
 
+        start_api_call_time = time.time()
+
         # Get response from Azure OpenAI
         response = client.chat.completions.create(
             model="vittohalfon",
             messages=messages
         )
+
+        end_api_call_time = time.time()
+        logging.info(f"Azure OpenAI API call took {end_api_call_time - start_api_call_time} seconds")
 
         ai_response = response.choices[0].message.content
 
@@ -46,6 +52,7 @@ def main(user_message, chat_id):  # Accept user_message and chat_id as arguments
         ai_response = "Sorry, there was an error in processing your request."
 
     try:
+        start_db_time = time.time()
         # Cosmos DB credentials and initialization
         cosmos_endpoint = os.getenv('COSMOS_ENDPOINT')
         cosmos_key = os.getenv('COSMOS_KEY')
@@ -64,6 +71,9 @@ def main(user_message, chat_id):  # Accept user_message and chat_id as arguments
             "aiResponse": ai_response
         }
         container.upsert_item(chat_data)
+
+        end_db_time = time.time()
+        logging.info(f"Cosmos DB call took {end_db_time - start_db_time} seconds")
 
     except Exception as e:
         logging.error(f"Error in interacting with Cosmos DB: {e}")
