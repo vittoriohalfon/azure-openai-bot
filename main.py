@@ -38,7 +38,7 @@ def main(user_message, chat_id):  # Accept user_message and chat_id as arguments
 
         # Get response from Azure OpenAI
         response = client.chat.completions.create(
-            model="vittohalfon",
+            model="landingBot",
             messages=messages
         )
 
@@ -46,6 +46,14 @@ def main(user_message, chat_id):  # Accept user_message and chat_id as arguments
         logging.info(f"Azure OpenAI API call took {end_api_call_time - start_api_call_time} seconds")
 
         ai_response = response.choices[0].message.content
+
+        #Append bot response to the messages list
+        messages.append(
+            {
+                "role": "assistant",
+                "content": ai_response
+            }
+        )
 
     except Exception as e:
         logging.error(f"Error in interacting with Azure OpenAI: {e}")
@@ -67,8 +75,7 @@ def main(user_message, chat_id):  # Accept user_message and chat_id as arguments
         chat_data = {
             "id": str(uuid.uuid4()),  # Generate a unique ID for each chat record
             "chatId": chat_id,  # Use the provided chatId
-            "userMessage": user_message,
-            "aiResponse": ai_response
+            "messages": messages
         }
         container.upsert_item(chat_data)
 
