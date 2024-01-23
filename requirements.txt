@@ -1,7 +1,7 @@
 azure-cosmos
 azure-ai-textanalytics
 azure-common
-azure-core=
+azure-core
 azure-cosmos
 azure-functions
 flask
