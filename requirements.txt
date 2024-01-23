@@ -95,7 +95,6 @@ grpcio-health-checking==1.48.2
 gunicorn==21.2.0
 h11==0.14.0
 h5py==3.10.0
-homebrew==0.2.5
 html5lib==1.1
 httpcore==0.17.2
 httptools==0.6.0
