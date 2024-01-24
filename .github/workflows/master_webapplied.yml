@@ -66,4 +66,4 @@ jobs:
         with:
           app-name: 'webapplied'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZURE_PUBLISH }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_URL }}
